@@ -1,1 +1,1 @@
-"C:\Data" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+"C:\Data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]

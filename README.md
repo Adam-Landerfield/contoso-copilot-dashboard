@@ -31,13 +31,15 @@ from everything under `src/`. No dependencies beyond the Python standard library
 | `src/model/queries/Employees.pq` | M query that reads and shapes the CSV |
 | `src/model/measures/*.dax` | One DAX measure per file |
 | `src/report/report.json` | Report layout, with nested config written as real JSON |
-| `src/package/` | `Version`, `Settings` and `Metadata` package parts |
+| `src/package/` | `Version`, `Settings`, `Metadata` and `DiagramLayout` package parts |
 | `scripts/build_pbit.py` | Packages all of the above into the `.pbit` |
 
 `model.json` references the `.pq` / `.dax` files through `expressionFile` keys.
 The build script inlines them, escapes the nested report JSON the way Power BI
 expects, and writes each package part as UTF-16 LE inside the zip container that
-makes up a `.pbit`.
+makes up a `.pbit`. It also generates the binary `DataMashup` part — the Power
+Query document Power BI Desktop reads when it prompts for template parameters —
+from the same `.pq` files, so there is a single source of truth for the M code.
 
 ## The report page
 

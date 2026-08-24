@@ -2,14 +2,18 @@
 """Re-package Contoso-Readiness.pbit from the readable sources in src/.
 
 A .pbit is an OPC (zip) package. Every part except [Content_Types].xml is
-UTF-16 LE encoded with no BOM, which is what Power BI Desktop expects.
+UTF-16 LE with no BOM. The part layout mirrors a genuine Power BI Desktop
+template, including the binary /DataMashup container that holds the Power Query
+document Desktop reads when it prompts for template parameters.
 
 Run:  python3 scripts/build_pbit.py
 """
 
 from __future__ import annotations
 
+import io
 import json
+import struct
 import sys
 import zipfile
 from pathlib import Path
@@ -17,20 +21,74 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC = REPO_ROOT / "src"
 MODEL_DIR = SRC / "model"
+PACKAGE_DIR = SRC / "package"
 OUTPUT = REPO_ROOT / "Contoso-Readiness.pbit"
 
 # Power BI stores these report properties as escaped JSON strings.
 STRINGIFIED_KEYS = {"config", "filters", "query", "dataTransforms"}
 
-CONTENT_TYPES = """<?xml version="1.0" encoding="utf-8"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Override PartName="/Version" ContentType="" />
-  <Override PartName="/Settings" ContentType="application/json" />
-  <Override PartName="/Metadata" ContentType="application/json" />
-  <Override PartName="/DataModelSchema" ContentType="application/json" />
-  <Override PartName="/Report/Layout" ContentType="application/json" />
-</Types>
-"""
+# Order matters: it is also the order Power Query lists the queries in.
+QUERIES = [
+    ("DataFolderPath", "queries/DataFolderPath.pq"),
+    ("Employees", "queries/Employees.pq"),
+]
+
+CONTENT_TYPES = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    '<Default Extension="json" ContentType=""/>'
+    '<Default Extension="xml" ContentType=""/>'
+    '<Override PartName="/Version" ContentType=""/>'
+    '<Override PartName="/DataMashup" ContentType=""/>'
+    '<Override PartName="/DataModelSchema" ContentType=""/>'
+    '<Override PartName="/DiagramLayout" ContentType=""/>'
+    '<Override PartName="/Report/Layout" ContentType=""/>'
+    '<Override PartName="/Settings" ContentType="application/json"/>'
+    '<Override PartName="/Metadata" ContentType="application/json"/>'
+    "</Types>"
+)
+
+XSD_NS = (
+    'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
+    'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+)
+
+MASHUP_CONTENT_TYPES = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    '<Default Extension="xml" ContentType="text/xml" />'
+    '<Default Extension="m" ContentType="application/x-ms-m" />'
+    "</Types>"
+)
+
+MASHUP_PACKAGE_XML = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    f"<Package {XSD_NS}>"
+    "<Version>2.114.322.0</Version>"
+    "<MinVersion>1.5.3296.0</MinVersion>"
+    "<Culture>en-US</Culture>"
+    "</Package>"
+)
+
+MASHUP_PERMISSIONS = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    f"<PermissionList {XSD_NS}>"
+    "<CanEvaluateFuturePackages>false</CanEvaluateFuturePackages>"
+    "<FirewallEnabled>true</FirewallEnabled>"
+    "</PermissionList>"
+)
+
+MASHUP_METADATA_XML = (
+    '<?xml version="1.0" encoding="utf-8"?>'
+    f"<LocalPackageMetadataFile {XSD_NS}>"
+    "<Items><Item>"
+    "<ItemLocation><ItemType>AllFormulas</ItemType><ItemPath /></ItemLocation>"
+    '<StableEntries><Entry Type="IsTypeDetectionEnabled" Value="sTrue" /></StableEntries>'
+    "</Item></Items>"
+    "</LocalPackageMetadataFile>"
+)
+
+EMPTY_ZIP = b"PK\x05\x06" + b"\x00" * 18
 
 
 def strip_comments(node):
@@ -42,12 +100,16 @@ def strip_comments(node):
     return node
 
 
-def read_expression(relative_path: str):
-    """Read a .pq/.dax file as a TMSL expression (string, or list of lines)."""
+def read_query(relative_path: str) -> str:
     path = MODEL_DIR / relative_path
     if not path.is_file():
         raise FileNotFoundError(f"Expression file not found: {path}")
-    lines = path.read_text(encoding="utf-8").rstrip("\n").split("\n")
+    return path.read_text(encoding="utf-8").rstrip("\n")
+
+
+def read_expression(relative_path: str):
+    """Read a .pq/.dax file as a TMSL expression (string, or list of lines)."""
+    lines = read_query(relative_path).split("\n")
     return lines[0] if len(lines) == 1 else lines
 
 
@@ -101,6 +163,47 @@ def build_layout() -> dict:
     return stringify_nested_json(layout)
 
 
+def build_section1() -> str:
+    """The Power Query document: one `shared` declaration per query."""
+    blocks = ["section Section1;"]
+    for name, relative_path in QUERIES:
+        lines = read_query(relative_path).split("\n")
+        # Hoist the file's leading comment block above the declaration.
+        header = []
+        while lines and (lines[0].startswith("//") or not lines[0].strip()):
+            header.append(lines.pop(0))
+        body = "\n".join(lines)
+        blocks.append("\r\n".join(header + [f"shared {name} = {body};"]))
+    return "\r\n\r\n".join(blocks) + "\r\n"
+
+
+def length_prefixed(payload: bytes) -> bytes:
+    return struct.pack("<I", len(payload)) + payload
+
+
+def build_mashup() -> bytes:
+    """The binary /DataMashup container Power BI Desktop reads on open."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as mashup_package:
+        mashup_package.writestr("Config/Package.xml", MASHUP_PACKAGE_XML.encode("utf-8-sig"))
+        mashup_package.writestr("[Content_Types].xml", MASHUP_CONTENT_TYPES.encode("utf-8-sig"))
+        mashup_package.writestr("Formulas/Section1.m", build_section1().encode("utf-8"))
+
+    metadata = (
+        struct.pack("<I", 0)
+        + length_prefixed(MASHUP_METADATA_XML.encode("utf-8-sig"))
+        + length_prefixed(EMPTY_ZIP)
+    )
+
+    return (
+        struct.pack("<I", 0)
+        + length_prefixed(buffer.getvalue())
+        + length_prefixed(MASHUP_PERMISSIONS.encode("utf-8-sig"))
+        + length_prefixed(metadata)
+        + struct.pack("<I", 0)  # permission bindings are machine-specific, so leave empty
+    )
+
+
 def utf16(text: str) -> bytes:
     return text.encode("utf-16-le")
 
@@ -109,18 +212,20 @@ def json_part(payload: dict) -> bytes:
     return utf16(json.dumps(payload, separators=(",", ":"), ensure_ascii=False))
 
 
-def main() -> int:
-    version = (SRC / "package" / "Version.txt").read_text(encoding="utf-8").strip()
-    settings = json.loads((SRC / "package" / "Settings.json").read_text(encoding="utf-8"))
-    metadata = json.loads((SRC / "package" / "Metadata.json").read_text(encoding="utf-8"))
+def package_json(name: str) -> dict:
+    return json.loads((PACKAGE_DIR / f"{name}.json").read_text(encoding="utf-8"))
 
+
+def main() -> int:
     parts = [
+        ("Version", utf16((PACKAGE_DIR / "Version.txt").read_text(encoding="utf-8").strip())),
         ("[Content_Types].xml", CONTENT_TYPES.encode("utf-8")),
-        ("Version", utf16(version)),
-        ("Settings", json_part(settings)),
-        ("Metadata", json_part(metadata)),
+        ("DataMashup", build_mashup()),
         ("DataModelSchema", json_part(build_model())),
+        ("DiagramLayout", json_part(package_json("DiagramLayout"))),
         ("Report/Layout", json_part(build_layout())),
+        ("Settings", json_part(package_json("Settings"))),
+        ("Metadata", json_part(package_json("Metadata"))),
     ]
 
     with zipfile.ZipFile(OUTPUT, "w", zipfile.ZIP_DEFLATED) as package:

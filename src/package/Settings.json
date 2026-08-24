@@ -1,1 +1,11 @@
-{}
+{
+  "Version": 1,
+  "ReportSettings": {
+    "IsAutoRecoveryEnabledForThisFile": false
+  },
+  "QueriesSettings": {
+    "TypeDetectionEnabled": true,
+    "RelationshipImportEnabled": true,
+    "RunBackgroundAnalysis": true
+  }
+}
