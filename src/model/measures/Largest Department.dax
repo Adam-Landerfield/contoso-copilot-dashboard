@@ -1,0 +1,12 @@
+VAR DepartmentHeadcount =
+    ADDCOLUMNS (
+        VALUES ( 'Employees'[Department] ),
+        "@Headcount", CALCULATE ( COUNTROWS ( 'Employees' ) )
+    )
+VAR LargestDepartment =
+    TOPN ( 1, DepartmentHeadcount, [@Headcount], DESC, 'Employees'[Department], ASC )
+RETURN
+    CONCATENATEX (
+        LargestDepartment,
+        'Employees'[Department] & " (" & FORMAT ( [@Headcount], "#,0" ) & ")"
+    )

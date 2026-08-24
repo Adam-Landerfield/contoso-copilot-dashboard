@@ -1,0 +1,644 @@
+{
+  "_comment": [
+    "Readable source for the Power BI report layout (/Report/Layout inside the .pbit).",
+    "Power BI stores 'config', 'filters', 'query' and 'dataTransforms' as escaped JSON",
+    "strings. Here they are written as real JSON objects; scripts/build_pbit.py",
+    "stringifies them and copies each visual's position onto the visual container."
+  ],
+  "id": 0,
+  "resourcePackages": [],
+  "layoutOptimization": 0,
+  "publicCustomVisuals": [],
+  "filters": [],
+  "config": {
+    "version": "5.43",
+    "activeSectionIndex": 0,
+    "defaultDrillFilterOtherVisuals": true,
+    "settings": {
+      "useStylableVisualContainerHeader": true,
+      "exportDataMode": 1,
+      "useNewFilterPaneExperience": true,
+      "allowChangeFilterTypes": true,
+      "allowInlineExploration": false,
+      "disableFilterPaneSearch": false
+    }
+  },
+  "sections": [
+    {
+      "name": "CopilotReadiness",
+      "displayName": "Copilot Readiness",
+      "ordinal": 0,
+      "width": 1280,
+      "height": 720,
+      "displayOption": 1,
+      "filters": [],
+      "config": {
+        "objects": {
+          "background": [
+            {
+              "properties": {
+                "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F5F6F8'" } } } } },
+                "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+              }
+            }
+          ],
+          "outspace": [
+            {
+              "properties": {
+                "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#F5F6F8'" } } } } },
+                "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+              }
+            }
+          ]
+        }
+      },
+      "visualContainers": [
+        {
+          "filters": [],
+          "config": {
+            "name": "txtTitle",
+            "layouts": [
+              { "id": 0, "position": { "x": 24, "y": 16, "z": 0, "width": 700, "height": 40, "tabOrder": 0 } }
+            ],
+            "singleVisual": {
+              "visualType": "textbox",
+              "drillFilterOtherVisuals": true,
+              "objects": {
+                "general": [
+                  {
+                    "properties": {
+                      "paragraphs": [
+                        {
+                          "horizontalTextAlignment": "left",
+                          "textRuns": [
+                            {
+                              "value": "Contoso | Microsoft 365 Copilot Readiness",
+                              "textStyle": {
+                                "fontSize": "20pt",
+                                "fontWeight": "bold",
+                                "color": "#1B3A57",
+                                "fontFamily": "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "vcObjects": {
+                "background": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ],
+                "visualHeader": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "txtSubtitle",
+            "layouts": [
+              { "id": 0, "position": { "x": 24, "y": 58, "z": 1, "width": 700, "height": 28, "tabOrder": 1 } }
+            ],
+            "singleVisual": {
+              "visualType": "textbox",
+              "drillFilterOtherVisuals": true,
+              "objects": {
+                "general": [
+                  {
+                    "properties": {
+                      "paragraphs": [
+                        {
+                          "horizontalTextAlignment": "left",
+                          "textRuns": [
+                            {
+                              "value": "Licence coverage across the workforce. Use the Country slicer to filter the whole page.",
+                              "textStyle": {
+                                "fontSize": "10pt",
+                                "color": "#605E5C",
+                                "fontFamily": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "vcObjects": {
+                "background": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ],
+                "visualHeader": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "cardTotalEmployees",
+            "layouts": [
+              { "id": 0, "position": { "x": 24, "y": 100, "z": 2, "width": 232, "height": 116, "tabOrder": 2 } }
+            ],
+            "singleVisual": {
+              "visualType": "card",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Values": [{ "queryRef": "Employees.Total Employees" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Total Employees" },
+                    "Name": "Employees.Total Employees",
+                    "NativeReferenceName": "Total Employees"
+                  }
+                ]
+              },
+              "objects": {
+                "labels": [
+                  {
+                    "properties": {
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1B3A57'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "30D" } } },
+                      "labelDisplayUnits": { "expr": { "Literal": { "Value": "1D" } } },
+                      "labelPrecision": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "categoryLabels": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Total employees'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "11D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'center'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "cardLicensedEmployees",
+            "layouts": [
+              { "id": 0, "position": { "x": 272, "y": 100, "z": 3, "width": 232, "height": 116, "tabOrder": 3 } }
+            ],
+            "singleVisual": {
+              "visualType": "card",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Values": [{ "queryRef": "Employees.Copilot Licensed Employees" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Copilot Licensed Employees" },
+                    "Name": "Employees.Copilot Licensed Employees",
+                    "NativeReferenceName": "Copilot Licensed Employees"
+                  }
+                ]
+              },
+              "objects": {
+                "labels": [
+                  {
+                    "properties": {
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#2E7D32'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "30D" } } },
+                      "labelDisplayUnits": { "expr": { "Literal": { "Value": "1D" } } },
+                      "labelPrecision": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "categoryLabels": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Copilot-licensed employees'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "11D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'center'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "cardLicenseCoverage",
+            "layouts": [
+              { "id": 0, "position": { "x": 520, "y": 100, "z": 4, "width": 232, "height": 116, "tabOrder": 4 } }
+            ],
+            "singleVisual": {
+              "visualType": "card",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Values": [{ "queryRef": "Employees.License Coverage %" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "License Coverage %" },
+                    "Name": "Employees.License Coverage %",
+                    "NativeReferenceName": "License Coverage %"
+                  }
+                ]
+              },
+              "objects": {
+                "labels": [
+                  {
+                    "properties": {
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1B3A57'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "30D" } } },
+                      "labelDisplayUnits": { "expr": { "Literal": { "Value": "1D" } } }
+                    }
+                  }
+                ],
+                "categoryLabels": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Licence coverage'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "11D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'center'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "cardLargestDepartment",
+            "layouts": [
+              { "id": 0, "position": { "x": 768, "y": 100, "z": 5, "width": 232, "height": 116, "tabOrder": 5 } }
+            ],
+            "singleVisual": {
+              "visualType": "card",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Values": [{ "queryRef": "Employees.Largest Department" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Largest Department" },
+                    "Name": "Employees.Largest Department",
+                    "NativeReferenceName": "Largest Department"
+                  }
+                ]
+              },
+              "objects": {
+                "labels": [
+                  {
+                    "properties": {
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1B3A57'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "20D" } } }
+                    }
+                  }
+                ],
+                "categoryLabels": [
+                  { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Largest department by headcount'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "11D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'center'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "barEmployeesByDepartment",
+            "layouts": [
+              { "id": 0, "position": { "x": 24, "y": 232, "z": 6, "width": 976, "height": 464, "tabOrder": 6 } }
+            ],
+            "singleVisual": {
+              "visualType": "clusteredBarChart",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Category": [{ "queryRef": "Employees.Department" }],
+                "Series": [{ "queryRef": "Employees.License Status" }],
+                "Y": [{ "queryRef": "Employees.Total Employees" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Column": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Department" },
+                    "Name": "Employees.Department",
+                    "NativeReferenceName": "Department"
+                  },
+                  {
+                    "Column": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "License Status" },
+                    "Name": "Employees.License Status",
+                    "NativeReferenceName": "License Status"
+                  },
+                  {
+                    "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Total Employees" },
+                    "Name": "Employees.Total Employees",
+                    "NativeReferenceName": "Total Employees"
+                  }
+                ],
+                "OrderBy": [
+                  {
+                    "Direction": 2,
+                    "Expression": {
+                      "Measure": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Total Employees" }
+                    }
+                  }
+                ]
+              },
+              "objects": {
+                "legend": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "position": { "expr": { "Literal": { "Value": "'Top'" } } },
+                      "showTitle": { "expr": { "Literal": { "Value": "false" } } },
+                      "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#323130'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "10D" } } }
+                    }
+                  }
+                ],
+                "categoryAxis": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } },
+                      "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#323130'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "10D" } } }
+                    }
+                  }
+                ],
+                "valueAxis": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "showAxisTitle": { "expr": { "Literal": { "Value": "false" } } },
+                      "labelColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#605E5C'" } } } } },
+                      "gridlineColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#EDEBE9'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "10D" } } }
+                    }
+                  }
+                ],
+                "labels": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "labelDisplayUnits": { "expr": { "Literal": { "Value": "1D" } } },
+                      "labelPrecision": { "expr": { "Literal": { "Value": "0D" } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "9D" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#323130'" } } } } }
+                    }
+                  }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Employees by department, licensed vs not licensed'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1B3A57'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "12D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'left'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "filters": [],
+          "config": {
+            "name": "slicerCountry",
+            "layouts": [
+              { "id": 0, "position": { "x": 1016, "y": 16, "z": 7, "width": 240, "height": 680, "tabOrder": 7 } }
+            ],
+            "singleVisual": {
+              "visualType": "slicer",
+              "drillFilterOtherVisuals": true,
+              "projections": {
+                "Values": [{ "queryRef": "Employees.Country" }]
+              },
+              "prototypeQuery": {
+                "Version": 2,
+                "From": [{ "Name": "e", "Entity": "Employees", "Type": 0 }],
+                "Select": [
+                  {
+                    "Column": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Country" },
+                    "Name": "Employees.Country",
+                    "NativeReferenceName": "Country"
+                  }
+                ],
+                "OrderBy": [
+                  {
+                    "Direction": 1,
+                    "Expression": {
+                      "Column": { "Expression": { "SourceRef": { "Source": "e" } }, "Property": "Country" }
+                    }
+                  }
+                ]
+              },
+              "objects": {
+                "selection": [
+                  {
+                    "properties": {
+                      "selectAllCheckboxEnabled": { "expr": { "Literal": { "Value": "true" } } },
+                      "singleSelect": { "expr": { "Literal": { "Value": "false" } } }
+                    }
+                  }
+                ],
+                "items": [
+                  {
+                    "properties": {
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#323130'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "10D" } } }
+                    }
+                  }
+                ]
+              },
+              "vcObjects": {
+                "title": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "text": { "expr": { "Literal": { "Value": "'Country'" } } },
+                      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#1B3A57'" } } } } },
+                      "fontSize": { "expr": { "Literal": { "Value": "12D" } } },
+                      "alignment": { "expr": { "Literal": { "Value": "'left'" } } }
+                    }
+                  }
+                ],
+                "background": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#FFFFFF'" } } } } },
+                      "transparency": { "expr": { "Literal": { "Value": "0D" } } }
+                    }
+                  }
+                ],
+                "border": [
+                  {
+                    "properties": {
+                      "show": { "expr": { "Literal": { "Value": "true" } } },
+                      "color": { "solid": { "color": { "expr": { "Literal": { "Value": "'#E1DFDD'" } } } } },
+                      "radius": { "expr": { "Literal": { "Value": "6D" } } }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

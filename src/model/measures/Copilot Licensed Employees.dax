@@ -1,0 +1,4 @@
+CALCULATE (
+    COUNTROWS ( 'Employees' ),
+    'Employees'[Is Licensed] = TRUE ()
+)

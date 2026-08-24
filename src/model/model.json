@@ -1,0 +1,146 @@
+{
+  "name": "Contoso-Readiness",
+  "compatibilityLevel": 1567,
+  "model": {
+    "culture": "en-US",
+    "sourceQueryCulture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "expressions": [
+      {
+        "name": "DataFolderPath",
+        "kind": "m",
+        "description": "Full path to the FOLDER that contains Contoso-Entra-Users-RAW.csv (for example C:\\Contoso\\data). Do not include the file name.",
+        "expressionFile": "queries/DataFolderPath.pq",
+        "annotations": [
+          { "name": "PBI_NavigationStepName", "value": "Navigation" },
+          { "name": "PBI_ResultType", "value": "Text" }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "name": "Employees",
+        "description": "One row per Contoso employee, sourced from the Entra ID user export.",
+        "columns": [
+          {
+            "name": "User Principal Name",
+            "dataType": "string",
+            "sourceColumn": "User Principal Name",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Display Name",
+            "dataType": "string",
+            "sourceColumn": "Display Name",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Job Title",
+            "dataType": "string",
+            "sourceColumn": "Job Title",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Department",
+            "dataType": "string",
+            "sourceColumn": "Department",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Employee Type",
+            "dataType": "string",
+            "sourceColumn": "Employee Type",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "City",
+            "dataType": "string",
+            "sourceColumn": "City",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Country",
+            "dataType": "string",
+            "sourceColumn": "Country",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Is Licensed",
+            "dataType": "boolean",
+            "sourceColumn": "Is Licensed",
+            "summarizeBy": "none",
+            "isHidden": true,
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "License Status",
+            "dataType": "string",
+            "sourceColumn": "License Status",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          },
+          {
+            "name": "Account Enabled",
+            "dataType": "boolean",
+            "sourceColumn": "Account Enabled",
+            "summarizeBy": "none",
+            "annotations": [{ "name": "SummarizationSetBy", "value": "Automatic" }]
+          }
+        ],
+        "measures": [
+          {
+            "name": "Total Employees",
+            "description": "Number of employee rows in scope.",
+            "expressionFile": "measures/Total Employees.dax",
+            "formatString": "#,0",
+            "annotations": [{ "name": "PBI_FormatHint", "value": "{\"isGeneralNumber\":true}" }]
+          },
+          {
+            "name": "Copilot Licensed Employees",
+            "description": "Employees whose HasLicense value is TRUE.",
+            "expressionFile": "measures/Copilot Licensed Employees.dax",
+            "formatString": "#,0",
+            "annotations": [{ "name": "PBI_FormatHint", "value": "{\"isGeneralNumber\":true}" }]
+          },
+          {
+            "name": "License Coverage %",
+            "description": "Copilot Licensed Employees divided by Total Employees.",
+            "expressionFile": "measures/License Coverage %.dax",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Largest Department",
+            "description": "Department with the highest headcount, with its headcount in brackets.",
+            "expressionFile": "measures/Largest Department.dax"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Employees",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expressionFile": "queries/Employees.pq"
+            }
+          }
+        ],
+        "annotations": [{ "name": "PBI_ResultType", "value": "Table" }]
+      }
+    ],
+    "annotations": [
+      { "name": "PBI_QueryOrder", "value": "[\"DataFolderPath\",\"Employees\"]" },
+      { "name": "__PBI_TimeIntelligenceEnabled", "value": "0" }
+    ]
+  }
+}
