@@ -31,6 +31,7 @@ from everything under `src/`. No dependencies beyond the Python standard library
 | `src/model/queries/Employees.pq` | M query that reads and shapes the CSV |
 | `src/model/measures/*.dax` | One DAX measure per file |
 | `src/report/report.json` | Report layout, with nested config written as real JSON |
+| `src/report/theme.json` | Report theme (colours, fonts) |
 | `src/package/` | `Version`, `Settings`, `Metadata` and `DiagramLayout` package parts |
 | `scripts/build_pbit.py` | Packages all of the above into the `.pbit` |
 

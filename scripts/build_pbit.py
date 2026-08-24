@@ -321,6 +321,10 @@ def main() -> int:
         ("DataModelSchema", json_part(model)),
         ("DiagramLayout", json_part(package_json("DiagramLayout"))),
         ("Report/Layout", json_part(build_layout())),
+        (
+            "Report/StaticResources/SharedResources/BaseThemes/ContosoReadiness.json",
+            (SRC / "report" / "theme.json").read_text(encoding="utf-8").encode("utf-8-sig"),
+        ),
         ("Settings", json_part(package_json("Settings"))),
         ("Metadata", json_part(package_json("Metadata"))),
     ]

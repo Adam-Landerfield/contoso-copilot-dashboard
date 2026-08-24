@@ -1,0 +1,36 @@
+{
+  "name": "ContosoReadiness",
+  "dataColors": [
+    "#2E7D32",
+    "#A19F9D",
+    "#1B3A57",
+    "#4C8EBD",
+    "#C43E1C",
+    "#8764B8",
+    "#038387",
+    "#CA5010"
+  ],
+  "background": "#FFFFFF",
+  "backgroundLight": "#F5F6F8",
+  "backgroundNeutral": "#E1DFDD",
+  "foreground": "#323130",
+  "foregroundNeutralSecondary": "#605E5C",
+  "foregroundNeutralTertiary": "#A19F9D",
+  "tableAccent": "#1B3A57",
+  "good": "#2E7D32",
+  "neutral": "#A19F9D",
+  "bad": "#C43E1C",
+  "maximum": "#1B3A57",
+  "center": "#A19F9D",
+  "minimum": "#E1DFDD",
+  "null": "#FF7F48",
+  "hyperlink": "#0563C1",
+  "visitedHyperlink": "#2B579A",
+  "textClasses": {
+    "callout": { "fontSize": 28, "fontFace": "Segoe UI Semibold", "color": "#1B3A57" },
+    "title": { "fontSize": 12, "fontFace": "Segoe UI Semibold", "color": "#1B3A57" },
+    "header": { "fontSize": 11, "fontFace": "Segoe UI Semibold", "color": "#323130" },
+    "label": { "fontSize": 10, "fontFace": "Segoe UI", "color": "#323130" }
+  },
+  "visualStyles": {}
+}

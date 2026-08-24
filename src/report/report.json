@@ -7,13 +7,34 @@
   ],
   "id": 0,
   "reportId": 0,
-  "resourcePackages": [],
+  "resourcePackages": [
+    {
+      "resourcePackage": {
+        "id": 0,
+        "name": "SharedResources",
+        "type": 2,
+        "items": [
+          {
+            "id": 0,
+            "resourcePackageId": 0,
+            "type": 202,
+            "path": "BaseThemes/ContosoReadiness.json",
+            "name": "ContosoReadiness"
+          }
+        ],
+        "disabled": false
+      }
+    }
+  ],
   "layoutOptimization": 0,
   "publicCustomVisuals": [],
   "pods": [],
   "filters": [],
   "config": {
     "version": "5.32",
+    "themeCollection": {
+      "baseTheme": { "name": "ContosoReadiness", "version": "5.8", "type": 2 }
+    },
     "activeSectionIndex": 0,
     "defaultDrillFilterOtherVisuals": true,
     "settings": {
