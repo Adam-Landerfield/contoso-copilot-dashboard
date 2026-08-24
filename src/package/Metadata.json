@@ -1,5 +1,7 @@
 {
   "Version": 5,
   "AutoCreatedRelationships": [],
-  "FileDescription": "Enter the full path of the folder that contains Contoso-Entra-Users-RAW.csv, for example C:\\Contoso\\data. Do not include the file name."
+  "FileDescription": "Enter the full path of the folder that contains Contoso-Entra-Users-RAW.csv, for example C:\\Contoso\\data. Do not include the file name.",
+  "CreatedFrom": "Cloud",
+  "CreatedFromRelease": "2023.02"
 }
