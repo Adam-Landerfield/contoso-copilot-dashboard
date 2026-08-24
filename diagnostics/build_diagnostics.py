@@ -105,12 +105,12 @@ def make_model(name: str, table_name: str, table_m: str, parameter: bool) -> dic
     return {"name": name, "compatibilityLevel": 1550, "model": model}
 
 
-def section1(members: list[tuple[str, str]]) -> str:
-    blocks = ["section Section1;"] + [f"shared {n} = {m};" for n, m in members]
+def section1(members: list[dict]) -> str:
+    blocks = ["section Section1;"] + [f"shared {s['name']} = {s['m']};" for s in members]
     return "\r\n\r\n".join(blocks) + "\r\n"
 
 
-def write(filename: str, model: dict, members: list[tuple[str, str]], with_mashup: bool, layout: dict) -> None:
+def write(filename: str, model: dict, members: list[dict], with_mashup: bool, layout: dict) -> None:
     parts = [
         ("Version", bp.utf16("1.25")),
         ("DataModelSchema", bp.json_part(model)),
@@ -120,7 +120,11 @@ def write(filename: str, model: dict, members: list[tuple[str, str]], with_mashu
         ("Metadata", bp.json_part(bp.package_json("Metadata"))),
     ]
     if with_mashup:
-        parts.insert(1, ("DataMashup", bp.build_mashup(section1(members))))
+        specs = [
+            {"name": s["name"], "role": s["role"], "result_type": s["result_type"], "file": s.get("file")}
+            for s in members
+        ]
+        parts.insert(1, ("DataMashup", bp.build_mashup(section1(members), metadata_for(specs, members))))
 
     names = [n for n, _ in parts]
     out = HERE / filename
@@ -131,15 +135,33 @@ def write(filename: str, model: dict, members: list[tuple[str, str]], with_mashu
     print(f"  {filename}")
 
 
+def metadata_for(specs: list[dict], members: list[dict]) -> str:
+    """Reuse the real metadata builder, feeding it inline M instead of files."""
+    inline = {s["name"]: s["m"] for s in members}
+    original = bp.read_query
+    bp.read_query = lambda key: inline[key]
+    try:
+        return bp.mashup_metadata_xml(
+            [{**s, "file": s["name"]} for s in specs]
+        )
+    finally:
+        bp.read_query = original
+
+
 def main() -> None:
     employees_m = bp.read_query("queries/Employees.pq")
+    param_m = bp.read_query("queries/DataFolderPath.pq")
     full_model = bp.build_model()
+
+    demo = {"name": "Demo", "m": STATIC_M, "role": "table", "result_type": "Table"}
+    param = {"name": "DataFolderPath", "m": param_m, "role": "parameter", "result_type": "Text"}
+    employees = {"name": "Employees", "m": employees_m, "role": "table", "result_type": "Table"}
 
     print("Built:")
     write(
         "T1-minimal-with-mashup.pbit",
         make_model("T1", "Demo", STATIC_M, parameter=False),
-        [("Demo", STATIC_M)],
+        [demo],
         with_mashup=True,
         layout=EMPTY_LAYOUT,
     )
@@ -153,14 +175,14 @@ def main() -> None:
     write(
         "T3-with-parameter.pbit",
         make_model("T3", "Demo", STATIC_M, parameter=True),
-        [("DataFolderPath", PARAM_M), ("Demo", STATIC_M)],
+        [param, demo],
         with_mashup=True,
         layout=EMPTY_LAYOUT,
     )
     write(
         "T4-real-model-no-visuals.pbit",
         full_model,
-        [("DataFolderPath", bp.read_query("queries/DataFolderPath.pq")), ("Employees", employees_m)],
+        [param, employees],
         with_mashup=True,
         layout=EMPTY_LAYOUT,
     )

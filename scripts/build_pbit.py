@@ -17,6 +17,8 @@ import struct
 import sys
 import zipfile
 from pathlib import Path
+from urllib.parse import quote
+from xml.sax.saxutils import escape
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC = REPO_ROOT / "src"
@@ -29,9 +31,22 @@ STRINGIFIED_KEYS = {"config", "filters", "query", "dataTransforms"}
 
 # Order matters: it is also the order Power Query lists the queries in.
 QUERIES = [
-    ("DataFolderPath", "queries/DataFolderPath.pq"),
-    ("Employees", "queries/Employees.pq"),
+    {
+        "name": "DataFolderPath",
+        "file": "queries/DataFolderPath.pq",
+        "role": "parameter",
+        "result_type": "Text",
+    },
+    {
+        "name": "Employees",
+        "file": "queries/Employees.pq",
+        "role": "table",
+        "result_type": "Table",
+    },
 ]
+
+# Fixed so that rebuilds are byte-reproducible.
+MASHUP_TIMESTAMP = "2026-08-24T00:00:00.0000000Z"
 
 CONTENT_TYPES = (
     '<?xml version="1.0" encoding="utf-8"?>'
@@ -78,17 +93,73 @@ MASHUP_PERMISSIONS = (
     "</PermissionList>"
 )
 
-MASHUP_METADATA_XML = (
-    '<?xml version="1.0" encoding="utf-8"?>'
-    f"<LocalPackageMetadataFile {XSD_NS}>"
-    "<Items><Item>"
-    "<ItemLocation><ItemType>AllFormulas</ItemType><ItemPath /></ItemLocation>"
-    '<StableEntries><Entry Type="IsTypeDetectionEnabled" Value="sTrue" /></StableEntries>'
-    "</Item></Items>"
-    "</LocalPackageMetadataFile>"
-)
-
 EMPTY_ZIP = b"PK\x05\x06" + b"\x00" * 18
+
+
+def _attr(value: str) -> str:
+    return escape(value, {'"': "&quot;"})
+
+
+def _entry(name: str, value: str) -> str:
+    return f'<Entry Type="{name}" Value="{_attr(value)}" />'
+
+
+def mashup_metadata_xml(specs: list[dict]) -> str:
+    """Per-query mashup metadata, mirroring what Power BI Desktop writes.
+
+    Loaded queries carry LastAnalysisServicesFormulaText: the mashup's record of
+    the M it handed to the model. Power BI validates the two against each other.
+    """
+    items = [
+        "<Item><ItemLocation><ItemType>AllFormulas</ItemType><ItemPath /></ItemLocation>"
+        "<StableEntries>"
+        + _entry("IsTypeDetectionEnabled", "sTrue")
+        + _entry("RunBackgroundAnalysis", "sFalse")
+        + "</StableEntries></Item>"
+    ]
+
+    for spec in specs:
+        if spec["role"] == "parameter":
+            entries = [
+                _entry("IsHidden", "l0"),
+                _entry("LoadToReportDisabled", "l1"),
+                _entry("FillErrorCode", "sUnknown"),
+                _entry("FillLastUpdated", f"d{MASHUP_TIMESTAMP}"),
+                _entry("ResultType", f"s{spec['result_type']}"),
+            ]
+        else:
+            formula_text = json.dumps(
+                {
+                    "IncludesReferencedQueries": False,
+                    "RootFormulaText": read_query(spec["file"]),
+                    "ReferencedQueriesFormulaText": {},
+                },
+                separators=(",", ":"),
+            )
+            entries = [
+                _entry("IsHidden", "l0"),
+                _entry("IsDirectQuery", "l0"),
+                _entry("LastAnalysisServicesFormulaText", "s" + formula_text),
+                _entry("IsLastAnalysisServicesFormulaTextCollection", "l1"),
+                _entry("LoadToReportDisabled", "l0"),
+                _entry("FillErrorCode", "sUnknown"),
+                _entry("FillLastUpdated", f"d{MASHUP_TIMESTAMP}"),
+                _entry("ResultType", f"s{spec['result_type']}"),
+            ]
+
+        path = f"Section1/{quote(spec['name'], safe='')}"
+        items.append(
+            "<Item><ItemLocation><ItemType>Formula</ItemType>"
+            f"<ItemPath>{path}</ItemPath></ItemLocation>"
+            f"<StableEntries>{''.join(entries)}</StableEntries></Item>"
+        )
+
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>'
+        f"<LocalPackageMetadataFile {XSD_NS}>"
+        f"<Items>{''.join(items)}</Items>"
+        "</LocalPackageMetadataFile>"
+    )
 
 
 def strip_comments(node):
@@ -170,8 +241,8 @@ def build_section1() -> str:
     model, otherwise Power BI rejects the template with a MashupValidationError.
     """
     blocks = ["section Section1;"]
-    for name, relative_path in QUERIES:
-        blocks.append(f"shared {name} = {read_query(relative_path)};")
+    for spec in QUERIES:
+        blocks.append(f"shared {spec['name']} = {read_query(spec['file'])};")
     return "\r\n\r\n".join(blocks) + "\r\n"
 
 
@@ -183,7 +254,8 @@ def assert_model_matches_mashup(model: dict, section1: str) -> None:
         if source.get("type") == "m":
             expressions[table["name"]] = source["expression"]
 
-    for name, _ in QUERIES:
+    for spec in QUERIES:
+        name = spec["name"]
         found = expressions.get(name)
         if found is None:
             raise AssertionError(f"Query '{name}' has no matching expression in the model")
@@ -198,7 +270,7 @@ def length_prefixed(payload: bytes) -> bytes:
     return struct.pack("<I", len(payload)) + payload
 
 
-def build_mashup(section1: str) -> bytes:
+def build_mashup(section1: str, metadata_xml: str) -> bytes:
     """The binary /DataMashup container Power BI Desktop reads on open."""
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as mashup_package:
@@ -208,7 +280,7 @@ def build_mashup(section1: str) -> bytes:
 
     metadata = (
         struct.pack("<I", 0)
-        + length_prefixed(MASHUP_METADATA_XML.encode("utf-8-sig"))
+        + length_prefixed(metadata_xml.encode("utf-8-sig"))
         + length_prefixed(EMPTY_ZIP)
     )
 
@@ -241,7 +313,7 @@ def main() -> int:
     parts = [
         ("Version", utf16((PACKAGE_DIR / "Version.txt").read_text(encoding="utf-8").strip())),
         ("[Content_Types].xml", CONTENT_TYPES.encode("utf-8")),
-        ("DataMashup", build_mashup(section1)),
+        ("DataMashup", build_mashup(section1, mashup_metadata_xml(QUERIES))),
         ("DataModelSchema", json_part(model)),
         ("DiagramLayout", json_part(package_json("DiagramLayout"))),
         ("Report/Layout", json_part(build_layout())),
