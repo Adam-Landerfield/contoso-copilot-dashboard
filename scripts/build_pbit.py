@@ -224,9 +224,13 @@ def build_model() -> dict:
 def build_layout() -> dict:
     layout = strip_comments(json.loads((SRC / "report" / "report.json").read_text(encoding="utf-8")))
 
-    # Power BI keeps a copy of each visual's position on the container itself.
-    for section in layout["sections"]:
-        for container in section["visualContainers"]:
+    # Power BI keeps a copy of each visual's position on the container itself,
+    # and identifies sections and containers by integer id.
+    for section_index, section in enumerate(layout["sections"]):
+        section["id"] = section_index
+        section.setdefault("objectId", f"ReportSection{section_index}")
+        for container_index, container in enumerate(section["visualContainers"]):
+            container["id"] = container_index
             position = container["config"]["layouts"][0]["position"]
             for key in ("x", "y", "z", "width", "height", "tabOrder"):
                 container[key] = position[key]

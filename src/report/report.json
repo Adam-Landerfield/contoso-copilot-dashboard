@@ -6,6 +6,7 @@
     "stringifies them and copies each visual's position onto the visual container."
   ],
   "id": 0,
+  "reportId": 0,
   "resourcePackages": [],
   "layoutOptimization": 0,
   "publicCustomVisuals": [],
