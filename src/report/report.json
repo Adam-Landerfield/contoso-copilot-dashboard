@@ -9,9 +9,10 @@
   "resourcePackages": [],
   "layoutOptimization": 0,
   "publicCustomVisuals": [],
+  "pods": [],
   "filters": [],
   "config": {
-    "version": "5.43",
+    "version": "5.32",
     "activeSectionIndex": 0,
     "defaultDrillFilterOtherVisuals": true,
     "settings": {

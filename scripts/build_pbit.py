@@ -157,7 +157,7 @@ def build_layout() -> dict:
     for section in layout["sections"]:
         for container in section["visualContainers"]:
             position = container["config"]["layouts"][0]["position"]
-            for key in ("x", "y", "z", "width", "height"):
+            for key in ("x", "y", "z", "width", "height", "tabOrder"):
                 container[key] = position[key]
 
     return stringify_nested_json(layout)
