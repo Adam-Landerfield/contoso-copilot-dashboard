@@ -164,30 +164,47 @@ def build_layout() -> dict:
 
 
 def build_section1() -> str:
-    """The Power Query document: one `shared` declaration per query."""
+    """The Power Query document: one `shared` declaration per query.
+
+    Each member body must be byte-identical to the matching expression in the
+    model, otherwise Power BI rejects the template with a MashupValidationError.
+    """
     blocks = ["section Section1;"]
     for name, relative_path in QUERIES:
-        lines = read_query(relative_path).split("\n")
-        # Hoist the file's leading comment block above the declaration.
-        header = []
-        while lines and (lines[0].startswith("//") or not lines[0].strip()):
-            header.append(lines.pop(0))
-        body = "\n".join(lines)
-        blocks.append("\r\n".join(header + [f"shared {name} = {body};"]))
+        blocks.append(f"shared {name} = {read_query(relative_path)};")
     return "\r\n\r\n".join(blocks) + "\r\n"
+
+
+def assert_model_matches_mashup(model: dict, section1: str) -> None:
+    """Power BI rejects a template whose model M differs from its mashup M."""
+    expressions = {e["name"]: e["expression"] for e in model["model"].get("expressions", [])}
+    for table in model["model"]["tables"]:
+        source = table["partitions"][0]["source"]
+        if source.get("type") == "m":
+            expressions[table["name"]] = source["expression"]
+
+    for name, _ in QUERIES:
+        found = expressions.get(name)
+        if found is None:
+            raise AssertionError(f"Query '{name}' has no matching expression in the model")
+        joined = found if isinstance(found, str) else "\n".join(found)
+        if f"shared {name} = {joined};" not in section1:
+            raise AssertionError(
+                f"Query '{name}' is not byte-identical between the model and Section1.m"
+            )
 
 
 def length_prefixed(payload: bytes) -> bytes:
     return struct.pack("<I", len(payload)) + payload
 
 
-def build_mashup() -> bytes:
+def build_mashup(section1: str) -> bytes:
     """The binary /DataMashup container Power BI Desktop reads on open."""
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as mashup_package:
         mashup_package.writestr("Config/Package.xml", MASHUP_PACKAGE_XML.encode("utf-8-sig"))
         mashup_package.writestr("[Content_Types].xml", MASHUP_CONTENT_TYPES.encode("utf-8-sig"))
-        mashup_package.writestr("Formulas/Section1.m", build_section1().encode("utf-8"))
+        mashup_package.writestr("Formulas/Section1.m", section1.encode("utf-8"))
 
     metadata = (
         struct.pack("<I", 0)
@@ -217,11 +234,15 @@ def package_json(name: str) -> dict:
 
 
 def main() -> int:
+    model = build_model()
+    section1 = build_section1()
+    assert_model_matches_mashup(model, section1)
+
     parts = [
         ("Version", utf16((PACKAGE_DIR / "Version.txt").read_text(encoding="utf-8").strip())),
         ("[Content_Types].xml", CONTENT_TYPES.encode("utf-8")),
-        ("DataMashup", build_mashup()),
-        ("DataModelSchema", json_part(build_model())),
+        ("DataMashup", build_mashup(section1)),
+        ("DataModelSchema", json_part(model)),
         ("DiagramLayout", json_part(package_json("DiagramLayout"))),
         ("Report/Layout", json_part(build_layout())),
         ("Settings", json_part(package_json("Settings"))),

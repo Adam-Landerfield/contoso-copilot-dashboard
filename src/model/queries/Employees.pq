@@ -1,10 +1,4 @@
-// Employees
-//
-// Loads Contoso-Entra-Users-RAW.csv from the folder supplied in the
-// DataFolderPath parameter, keeps the columns the report needs and derives the
-// Copilot licensing flags. Every value in the report comes from this query.
 let
-    // Accept "C:\Data", "C:/Data" and trailing-separator variants.
     Supplied = Text.Trim(DataFolderPath),
     Normalised = Text.Replace(Supplied, "/", "\"),
     FolderPath =
