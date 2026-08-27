@@ -123,6 +123,13 @@
             "name": "Largest Department",
             "description": "Department with the highest headcount, with its headcount in brackets.",
             "expressionFile": "measures/Largest Department.dax"
+          },
+          {
+            "name": "Licensed Employees (Top 5)",
+            "description": "Copilot-licensed headcount, returned only for the five job titles with the highest licensed headcount. Blank elsewhere, so a table shows just those five. ALLSELECTED means it re-ranks under the Country slicer.",
+            "expressionFile": "measures/Licensed Employees (Top 5).dax",
+            "formatString": "#,0",
+            "annotations": [{ "name": "PBI_FormatHint", "value": "{\"isGeneralNumber\":true}" }]
           }
         ],
         "partitions": [

@@ -1,0 +1,10 @@
+VAR Licensed = [Copilot Licensed Employees]
+VAR TitleRank =
+    RANKX (
+        ALLSELECTED ( 'Employees'[Job Title] ),
+        [Copilot Licensed Employees],
+        ,
+        DESC
+    )
+RETURN
+    IF ( NOT ISBLANK ( Licensed ) && TitleRank <= 5, Licensed )

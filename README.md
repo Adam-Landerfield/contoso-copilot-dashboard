@@ -48,7 +48,9 @@ from the same `.pq` files, so there is a single source of truth for the M code.
 
 - Four cards: total employees, Copilot-licensed employees, licence coverage %,
   and the largest department by headcount.
-- A clustered bar chart of employees per department, split by licence status.
+- A combo chart of employees per department split by licence status, with a line
+  labelling each department's licence coverage %.
+- A table of the top 5 job titles among licensed employees.
 - A `Country` slicer that filters the whole page.
 
 Every figure is derived from the loaded CSV — there are no hardcoded numbers.
